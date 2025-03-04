@@ -1,8 +1,13 @@
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddScoped<IPollsService, PollsService>();
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -15,8 +20,12 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 
 app.UseAuthorization();
 
