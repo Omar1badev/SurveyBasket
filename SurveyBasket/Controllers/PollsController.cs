@@ -4,35 +4,65 @@
 [Route("/[controller]")]
 [ApiController]
 
-public class PollsController : ControllerBase
+public class PollsController(IPollsService service) : ControllerBase
 {
+    private readonly IPollsService service = service;
+
     [HttpGet("")]                                           
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        return Ok();
+        var polls = await service.GetPollsAsync();
+
+        return Ok(polls);
     } 
+
 
 
     
     [HttpGet("{Id}")]                                           
-    public IActionResult Get(int Id)
+    public async Task<IActionResult> Get(int Id)
     {
-        return Ok();
+        var poll = await service.GetPollByIdAsync(Id);
+
+        return Ok(poll);
     }
+
 
 
 
     [HttpPost("")]
-    public IActionResult add(int Id, PollRequest request)
-    {
-        return CreatedAtAction(nameof(Get),Id ,request);
+    public async Task<IActionResult> add(PollRequest request)
+    {   
+        var response = await service.CreatePollAsync(request);
+
+        return Ok(response);
     }
 
     
+
     [HttpPut("{Id}")]
-    public IActionResult update(int Id , PollRequest request)
+    public async Task<IActionResult> update(int Id , PollRequest request)
     {
-        var response = request.Adapt<PollResponse>();
+
+        var response =await service.UpdatePollAsync(Id, request);
+
+        return Ok(response);
+    }
+
+
+
+
+    [HttpDelete("{Id}")]
+    public IActionResult delete(int Id,CancellationToken cancellationToken)
+    {
+        var response = service.DeletePollAsync(Id,cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpPut("toggle/{Id}")]
+    public async Task<IActionResult> Toggle(int Id)
+    {
+        var response = await service.ToggleStatus(Id);
         return Ok(response);
     }
 }

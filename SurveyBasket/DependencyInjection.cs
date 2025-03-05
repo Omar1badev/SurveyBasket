@@ -4,7 +4,7 @@ namespace SurveyBasket;
 public static class DependencyInjection
 {
 
-    public static IServiceCollection AddDependencies(this IServiceCollection Services)
+    public static IServiceCollection AddDependencies(this IServiceCollection Services , IConfiguration configuration)
     {
         Services.AddControllers();
 
@@ -16,7 +16,8 @@ public static class DependencyInjection
 
         Services.AddMappester()
                 .AddFluentValidation()
-                .AddSwagger();
+                .AddSwagger()
+                .AddDatabase(configuration);
 
 
         return Services;
@@ -48,6 +49,17 @@ public static class DependencyInjection
         mappingConfig.Scan(Assembly.GetExecutingAssembly());
 
         Services.AddSingleton<IMapper>(new Mapper(mappingConfig));
+
+        return Services;
+    }
+    
+    public static IServiceCollection AddDatabase(this IServiceCollection Services, IConfiguration c)
+    {
+        var ConnectionString = c.GetConnectionString("DefaultConnection") ??
+            throw new InvalidOperationException("Connection string is not found in the configuration file");
+
+        Services.AddDbContext<ApplicationDbcontext>(options =>
+            options.UseSqlServer(ConnectionString));
 
         return Services;
     }

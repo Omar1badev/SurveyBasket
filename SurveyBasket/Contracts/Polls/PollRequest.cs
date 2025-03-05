@@ -3,5 +3,8 @@
 public record PollRequest
 (
     string Title,
-    string Description
+    string Summary,
+    bool IsPublished,
+    DateOnly StartsAt,
+    DateOnly EndsAt
     );
