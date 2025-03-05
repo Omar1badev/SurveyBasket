@@ -1,6 +1,4 @@
-﻿
-
-namespace SurveyBasket.Controllers;
+﻿namespace SurveyBasket.Controllers;
 
 
 [Route("/[controller]")]
