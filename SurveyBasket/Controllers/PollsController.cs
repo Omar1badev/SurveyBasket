@@ -1,14 +1,18 @@
-﻿namespace SurveyBasket.Controllers;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+
+namespace SurveyBasket.Controllers;
 
 
-[Route("/[controller]")]
+[Route("[controller]")]
 [ApiController]
 
 public class PollsController(IPollsService service) : ControllerBase
 {
     private readonly IPollsService service = service;
 
-    [HttpGet("")]                                           
+    [HttpGet("")]
+    [Authorize]
     public async Task<IActionResult> GetAll()
     {
         var polls = await service.GetPollsAsync();
@@ -19,7 +23,7 @@ public class PollsController(IPollsService service) : ControllerBase
 
 
     
-    [HttpGet("{Id}")]                                           
+    [HttpGet("{Id}")]
     public async Task<IActionResult> Get(int Id)
     {
         var poll = await service.GetPollByIdAsync(Id);

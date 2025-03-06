@@ -23,8 +23,10 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.UseAuthorization();
+app.UseRouting();            //  Ensure routing happens before auth
+app.UseAuthentication();     //  Authentication middleware
+app.UseAuthorization();      //  Authorization middleware
+app.MapControllers();        //  Map the controller endpoints
 
-app.MapControllers();
 
 app.Run();

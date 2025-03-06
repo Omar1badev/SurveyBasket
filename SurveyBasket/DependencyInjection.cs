@@ -1,5 +1,9 @@
 ﻿
-using SurveyBasket.Services.Auth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace SurveyBasket;
 
@@ -8,19 +12,23 @@ public static class DependencyInjection
 
     public static IServiceCollection AddDependencies(this IServiceCollection Services , IConfiguration configuration)
     {
+
         Services.AddControllers();
 
         Services.AddEndpointsApiExplorer();
 
         Services.AddScoped<IPollsService, PollsService>();
         Services.AddScoped<IAuthService,AuthService>();
+        Services.AddScoped<IJwtProvider, JwtProvider>();
 
 
 
-        Services.AddMappester()
+        Services.AddAuth()
+                .AddMappester()
                 .AddFluentValidation()
                 .AddSwagger()
-                .AddDatabase(configuration);
+                .AddDatabase(configuration)
+                ;
 
 
         return Services;
@@ -63,6 +71,37 @@ public static class DependencyInjection
 
         Services.AddDbContext<ApplicationDbcontext>(options =>
             options.UseSqlServer(ConnectionString));
+
+        return Services;
+    }
+
+    public static IServiceCollection AddAuth(this IServiceCollection Services)
+    {
+
+        Services.AddIdentity<ApplicataionUser, IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbcontext>();
+
+        Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(o =>
+        {
+            o.SaveToken = true;
+            o.TokenValidationParameters = new TokenValidationParameters
+            {
+
+
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidAudience = "SurveyBasket Users",
+                ValidIssuer = "SurveyBasket App",
+
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("OSGnfaoseirj845e5rUIat4earihgjf84qeyth"))
+            };
+        });
 
         return Services;
     }

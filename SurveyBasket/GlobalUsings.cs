@@ -14,5 +14,10 @@ global using SurveyBasket.Persistence;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+global using SurveyBasket.Contracts.Auth;
+global using SurveyBasket.Services.Auth;
+global using SurveyBasket.Authentication;
+
+
 
 
