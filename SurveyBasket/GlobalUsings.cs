@@ -17,6 +17,13 @@ global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 global using SurveyBasket.Contracts.Auth;
 global using SurveyBasket.Services.Auth;
 global using SurveyBasket.Authentication;
+global using Microsoft.Extensions.Options;
+global using System.ComponentModel.DataAnnotations;
+global using Microsoft.IdentityModel.Tokens;
+global using System.IdentityModel.Tokens.Jwt;
+global using System.Security.Claims;
+global using System.Text;
+
 
 
 
