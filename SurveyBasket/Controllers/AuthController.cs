@@ -13,10 +13,8 @@ public class AuthController(IAuthService service) : ControllerBase
     {
         var response = await service.SingInAsync(request);
 
-        if (response is null)
-            return BadRequest(new { message = "Invalid email or password" });
-
-        return Ok(response);
+        return response.IsSuccess? Ok(response.Value) : 
+            Problem(statusCode: StatusCodes.Status404NotFound, title: response.Error.Code, detail: response.Error.Description);
     }
 
 
@@ -25,10 +23,8 @@ public class AuthController(IAuthService service) : ControllerBase
     {
         var response = await service.GetRefreshTokenAsync(request.Token, request.RefreshToken);
 
-        if (response is null)
-            return BadRequest(new { message = "Invalid token or refresh token" });
-
-        return Ok(response);
+        return response.IsSuccess ? Ok(response.Value) : 
+            Problem(statusCode: StatusCodes.Status404NotFound, title: response.Error.Code, detail: response.Error.Description);
     }
     
     [HttpPost("revoke-refresh-token")]
@@ -36,6 +32,6 @@ public class AuthController(IAuthService service) : ControllerBase
     {
         var response = await service.RevokeRefreshTokenAsync(request.Token, request.RefreshToken);
 
-        return response ? Ok() : BadRequest("operation failed");
+        return response.IsSuccess ? Ok() : Problem(statusCode: StatusCodes.Status404NotFound, title: response.Error.Code, detail: response.Error.Description);
     }
 }

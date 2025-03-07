@@ -1,72 +1,75 @@
 ﻿
+using SurveyBasket.Abstraction;
+using SurveyBasket.Abstraction.Errors;
+
 namespace SurveyBasket.Services.Polls;
 
 public class PollsService(ApplicationDbcontext dbcontext) : IPollsService
 {
-    public async Task<PollResponse> CreatePollAsync(PollRequest Request)
+    public async Task<Result<PollResponse>> CreatePollAsync(PollRequest Request)
     {
         var poll = Request.Adapt<Poll>();
 
         await dbcontext.Polls.AddAsync(poll);
         await dbcontext.SaveChangesAsync();
-
-        return poll.Adapt<PollResponse>();
+        var response = poll.Adapt<PollResponse>();
+        return Result.Success(response);
     }
 
-    public bool DeletePollAsync(int pollId, CancellationToken cancellationToken = default)
+    public async Task<Result> DeletePollAsync(int pollId, CancellationToken cancellationToken = default)
     {
-        var poll = dbcontext.Polls.Find(pollId,cancellationToken);
+        var poll = await dbcontext.Polls.FindAsync(pollId,cancellationToken);
 
         if (poll is null)
-        {
-            return false;
-        }
+            return Result.Failure(PollsErrors.InvalidCredentials);
 
         dbcontext.Polls.Remove(poll);
         dbcontext.SaveChanges();
-        return true;
+
+        return Result.Success();
     }
 
-    public async Task<PollResponse> GetPollByIdAsync(int pollId)
+    public async Task<Result<PollResponse>> GetPollByIdAsync(int pollId)
     {
         var poll = await dbcontext.Polls.FindAsync(pollId);
-
-        if (poll is null)
-            return null;
         
-        return poll.Adapt<PollResponse>();
+        var response = poll.Adapt<PollResponse>();
+
+        return poll is not null ? 
+            Result.Success(response) :
+            Result.Failure<PollResponse>(PollsErrors.InvalidCredentials);
     }
 
-    public async Task<IEnumerable<PollResponse>> GetPollsAsync()
+    public async Task<Result<IEnumerable<PollResponse>>> GetPollsAsync()
 
     {
         var polls = await dbcontext.Polls.AsNoTracking().ToListAsync();
 
         var response = polls.Adapt<IEnumerable<PollResponse>>();
 
-        return response;
+        return Result.Success(response);
     }
 
-    public async Task<bool> ToggleStatus(int Id)
+    public async Task<Result> ToggleStatus(int Id)
     {
         var poll = await dbcontext.Polls.FindAsync(Id);
         if(poll is null)
-            return false;
+            return Result.Failure(PollsErrors.InvalidCredentials);
 
         poll.IsPublished = !poll.IsPublished;
         dbcontext.Polls.Update(poll);
         dbcontext.SaveChanges();
 
-        return true;
+        return Result.Success();
 
 
     }
 
-    public async Task<PollResponse> UpdatePollAsync(int pollId, PollRequest pollRequest)
+    public async Task<Result<PollResponse>> UpdatePollAsync(int pollId, PollRequest pollRequest)
     {
         var poll = await dbcontext.Polls.FindAsync(pollId);
         if (poll is null)
-        return null;
+        return Result.Failure<PollResponse>(PollsErrors.InvalidCredentials);
 
         poll.Summary = pollRequest.Summary;
         poll.Title = pollRequest.Title;
@@ -80,6 +83,6 @@ public class PollsService(ApplicationDbcontext dbcontext) : IPollsService
 
         var res = poll.Adapt<PollResponse>();
 
-        return res;
+        return Result.Success(res);
     }
 }

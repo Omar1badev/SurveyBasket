@@ -1,4 +1,6 @@
 ﻿
+using SurveyBasket.Abstraction;
+using SurveyBasket.Abstraction.Errors;
 using System.Security.Cryptography;
 
 namespace SurveyBasket.Services.Auth;
@@ -9,17 +11,17 @@ public class AuthService(UserManager<ApplicataionUser> manager,IJwtProvider jwtP
     private readonly IJwtProvider jwtProvider = jwtProvider;
     private readonly int RefreshTokenExpiryDays = 60;
 
-    public async Task<AuthResponse?> SingInAsync(AuthRequest request)
+    public async Task<Result<AuthResponse>> SingInAsync(AuthRequest request)
     {
         var user = await manager.FindByEmailAsync(request.Email);
 
         if (user is null)
-            return null;
+            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
 
         var TruePassword = await manager.CheckPasswordAsync(user, request.Password);
 
         if (!TruePassword)
-            return null;
+            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
 
         var (Token, ExpiresIn) = jwtProvider.GenerateToken(user);
 
@@ -37,7 +39,7 @@ public class AuthService(UserManager<ApplicataionUser> manager,IJwtProvider jwtP
 
         await manager.UpdateAsync(user);
 
-        return new AuthResponse(
+        var response = new AuthResponse(
             user.Id,
             user.Email!,
             user.FirstName,
@@ -48,6 +50,8 @@ public class AuthService(UserManager<ApplicataionUser> manager,IJwtProvider jwtP
             RefreshExpiresIn
         );
 
+        return Result.Success(response);
+
     }
 
     private static string GenerateRefreshToken()
@@ -55,22 +59,22 @@ public class AuthService(UserManager<ApplicataionUser> manager,IJwtProvider jwtP
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(220));
     }
 
-    public async Task<AuthResponse?> GetRefreshTokenAsync(string Token, string RefreshToken)
+    public async Task<Result<AuthResponse>> GetRefreshTokenAsync(string Token, string RefreshToken)
     {
         var UserId = jwtProvider.ValidateToken(Token);
 
         if (UserId is null)
-            return null;
+            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
 
         var user = await manager.FindByIdAsync(UserId);
 
         if (user is null) 
-            return null;
+            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
         
         var UserRefreshToken = user.RefreshTokens.SingleOrDefault(x => x.Token == RefreshToken && x.IsActive);
 
         if (UserRefreshToken is null)
-            return null;
+            return Result.Failure<AuthResponse>(UserErrors.RefreshTokenExpired);
 
         UserRefreshToken.RevokedOn = DateTime.UtcNow;
 
@@ -90,7 +94,7 @@ public class AuthService(UserManager<ApplicataionUser> manager,IJwtProvider jwtP
 
         await manager.UpdateAsync(user);
 
-        return new AuthResponse(
+        var response = new AuthResponse(
             user.Id,
             user.Email!,
             user.FirstName,
@@ -101,28 +105,29 @@ public class AuthService(UserManager<ApplicataionUser> manager,IJwtProvider jwtP
             RefreshExpiresIn
         );
 
+        return Result.Success(response);
     }
 
-    public async Task<bool> RevokeRefreshTokenAsync(string Token, string RefreshToken)
+    public async Task<Result> RevokeRefreshTokenAsync(string Token, string RefreshToken)
     {
         var UserId = jwtProvider.ValidateToken(Token);
 
         if (UserId is null)
-            return false;
+            return Result.Failure(UserErrors.RefreshTokenInvalidated);
 
         var user = await manager.FindByIdAsync(UserId);
 
         if (user is null)
-            return false;
+            return Result.Failure(UserErrors.InvalidCredentials);
 
         var UserRefreshToken = user.RefreshTokens.SingleOrDefault(x => x.Token == RefreshToken && x.IsActive);
 
         if (UserRefreshToken is null)
-            return false;
+            return Result.Failure(UserErrors.RefreshTokenNotActive);
 
         UserRefreshToken.RevokedOn = DateTime.UtcNow;
 
         await manager.UpdateAsync(user);
-        return true;
+        return Result.Success();
     }
 }

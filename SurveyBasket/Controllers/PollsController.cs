@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using SurveyBasket.Entites;
 
 namespace SurveyBasket.Controllers;
 
 
 [Route("[controller]")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class PollsController(IPollsService service) : ControllerBase
 {
     private readonly IPollsService service = service;
@@ -17,7 +18,8 @@ public class PollsController(IPollsService service) : ControllerBase
     {
         var polls = await service.GetPollsAsync();
 
-        return Ok(polls);
+        return polls.IsSuccess ? Ok(polls.Value) :
+            Problem(statusCode:StatusCodes.Status404NotFound , title:polls.Error.Code, detail:polls.Error.Description);
     } 
 
 
@@ -28,7 +30,9 @@ public class PollsController(IPollsService service) : ControllerBase
     {
         var poll = await service.GetPollByIdAsync(Id);
 
-        return Ok(poll);
+        return poll.IsSuccess ? Ok(poll.Value) :
+        Problem(statusCode: StatusCodes.Status404NotFound, title: poll.Error.Code, detail: poll.Error.Description);
+        
     }
 
 
@@ -39,7 +43,9 @@ public class PollsController(IPollsService service) : ControllerBase
     {   
         var response = await service.CreatePollAsync(request);
 
-        return Ok(response);
+        return response.IsSuccess ? Ok(response.Value)
+            : Problem(statusCode: StatusCodes.Status404NotFound, title: response.Error.Code, detail: response.Error.Description);
+        ;
     }
 
     
@@ -50,7 +56,8 @@ public class PollsController(IPollsService service) : ControllerBase
 
         var response =await service.UpdatePollAsync(Id, request);
 
-        return Ok(response);
+        return response.IsSuccess ? Ok(response.Value) :
+            Problem(statusCode: StatusCodes.Status404NotFound, title: response.Error.Code, detail: response.Error.Description);
     }
 
 
@@ -60,6 +67,7 @@ public class PollsController(IPollsService service) : ControllerBase
     public IActionResult delete(int Id,CancellationToken cancellationToken)
     {
         var response = service.DeletePollAsync(Id,cancellationToken);
+
         return Ok(response);
     }
 
@@ -67,6 +75,7 @@ public class PollsController(IPollsService service) : ControllerBase
     public async Task<IActionResult> Toggle(int Id)
     {
         var response = await service.ToggleStatus(Id);
-        return Ok(response);
+        return response.IsSuccess? Ok(response) :
+            Problem(statusCode: StatusCodes.Status404NotFound, title: response.Error.Code, detail: response.Error.Description);
     }
 }
