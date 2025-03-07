@@ -1,6 +1,6 @@
 ﻿namespace SurveyBasket.Entites;
 
-public class Poll
+public class Poll // : AuditableEntity
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
