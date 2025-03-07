@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Azure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using SurveyBasket.Abstraction;
 using SurveyBasket.Entites;
 
 namespace SurveyBasket.Controllers;
@@ -16,10 +18,10 @@ public class PollsController(IPollsService service) : ControllerBase
     
     public async Task<IActionResult> GetAll()
     {
-        var polls = await service.GetPollsAsync();
+        var response = await service.GetPollsAsync();
 
-        return polls.IsSuccess ? Ok(polls.Value) :
-            Problem(statusCode:StatusCodes.Status404NotFound , title:polls.Error.Code, detail:polls.Error.Description);
+        return response.IsSuccess ? Ok(response.Value) :
+            response.ToProblem(StatusCodes.Status404NotFound);
     } 
 
 
@@ -28,11 +30,12 @@ public class PollsController(IPollsService service) : ControllerBase
     [HttpGet("{Id}")]
     public async Task<IActionResult> Get(int Id)
     {
-        var poll = await service.GetPollByIdAsync(Id);
+        var response = await service.GetPollByIdAsync(Id);
 
-        return poll.IsSuccess ? Ok(poll.Value) :
-        Problem(statusCode: StatusCodes.Status404NotFound, title: poll.Error.Code, detail: poll.Error.Description);
-        
+        return response.IsSuccess ? Ok(response.Value) :
+        response.ToProblem(StatusCodes.Status404NotFound);
+
+
     }
 
 
@@ -43,9 +46,10 @@ public class PollsController(IPollsService service) : ControllerBase
     {   
         var response = await service.CreatePollAsync(request);
 
-        return response.IsSuccess ? Ok(response.Value)
-            : Problem(statusCode: StatusCodes.Status404NotFound, title: response.Error.Code, detail: response.Error.Description);
-        ;
+        return response.IsSuccess ?
+            Ok(response.Value) :
+            response.ToProblem(StatusCodes.Status404NotFound);
+        
     }
 
     
@@ -57,7 +61,7 @@ public class PollsController(IPollsService service) : ControllerBase
         var response =await service.UpdatePollAsync(Id, request);
 
         return response.IsSuccess ? Ok(response.Value) :
-            Problem(statusCode: StatusCodes.Status404NotFound, title: response.Error.Code, detail: response.Error.Description);
+            response.ToProblem(StatusCodes.Status404NotFound);
     }
 
 
@@ -71,11 +75,14 @@ public class PollsController(IPollsService service) : ControllerBase
         return Ok(response);
     }
 
+
+
     [HttpPut("toggle/{Id}")]
     public async Task<IActionResult> Toggle(int Id)
     {
         var response = await service.ToggleStatus(Id);
-        return response.IsSuccess? Ok(response) :
-            Problem(statusCode: StatusCodes.Status404NotFound, title: response.Error.Code, detail: response.Error.Description);
+        return response.IsSuccess ?
+            Ok(response) :
+            response.ToProblem(StatusCodes.Status404NotFound);
     }
 }

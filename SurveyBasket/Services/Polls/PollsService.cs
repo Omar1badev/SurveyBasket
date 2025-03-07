@@ -1,4 +1,5 @@
 ﻿
+using Azure.Core;
 using SurveyBasket.Abstraction;
 using SurveyBasket.Abstraction.Errors;
 
@@ -8,6 +9,11 @@ public class PollsService(ApplicationDbcontext dbcontext) : IPollsService
 {
     public async Task<Result<PollResponse>> CreatePollAsync(PollRequest Request)
     {
+        var isexist = dbcontext.Polls.Any(x => x.Title == Request.Title);
+        if (isexist)
+            return Result.Failure<PollResponse>(PollsErrors.InvalidCredentials);
+
+
         var poll = Request.Adapt<Poll>();
 
         await dbcontext.Polls.AddAsync(poll);
@@ -67,6 +73,12 @@ public class PollsService(ApplicationDbcontext dbcontext) : IPollsService
 
     public async Task<Result<PollResponse>> UpdatePollAsync(int pollId, PollRequest pollRequest)
     {
+        var isexist = dbcontext.Polls.Any(x => x.Title == pollRequest.Title && x.Id != pollId);
+
+        if (isexist)
+            return Result.Failure<PollResponse>(PollsErrors.InvalidCredentials);
+
+
         var poll = await dbcontext.Polls.FindAsync(pollId);
         if (poll is null)
         return Result.Failure<PollResponse>(PollsErrors.InvalidCredentials);

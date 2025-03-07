@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SurveyBasket.Abstraction.Errors;
 using System.Text;
 
 namespace SurveyBasket;
@@ -21,7 +22,8 @@ public static class DependencyInjection
         Services.AddScoped<IAuthService,AuthService>();
         Services.AddScoped<IJwtProvider, JwtProvider>();
 
-
+        Services.AddExceptionHandler<GlobalExceptionHandler>();
+        Services.AddProblemDetails();
 
         Services.AddAuth(configuration)
                 .AddMappester()

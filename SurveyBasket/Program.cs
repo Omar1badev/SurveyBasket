@@ -22,6 +22,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+app.UseExceptionHandler();   //  Handle exceptions
+
 app.UseCors();     //  Allow all CORS requests
 app.UseRouting();            //  Ensure routing happens before auth
 app.UseAuthentication();     //  Authentication middleware
