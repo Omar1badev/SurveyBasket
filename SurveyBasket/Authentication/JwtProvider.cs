@@ -31,4 +31,32 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 
         return (Token : new JwtSecurityTokenHandler().WriteToken(token), Expiry: options.ExpiryIn);
     }
+
+    public string? ValidateToken(string token)
+    {
+        var tokenhandler = new JwtSecurityTokenHandler();
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Key));
+
+        try
+        {
+            tokenhandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero,
+                IssuerSigningKey = key
+            }, out SecurityToken validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+
+            return jwtToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value;
+        }
+        catch 
+        {
+            return null;
+
+        }
+    }
 }
