@@ -109,6 +109,24 @@ public static class DependencyInjection
 
         return Services;
     }
+    public static IServiceCollection AddCORS(this IServiceCollection Services)
+    {
+        Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder=>
+                builder
+                        //.WithMethods("GET", "POST", "PUT", "DELETE")
+                        //.WithOrigins("http://localhost:3000")
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader() );
+        });
+        return Services;
+    }
 
 
-}
+        
+    }
+
+
+

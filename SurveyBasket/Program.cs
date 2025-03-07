@@ -22,7 +22,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
+app.UseCors();     //  Allow all CORS requests
 app.UseRouting();            //  Ensure routing happens before auth
 app.UseAuthentication();     //  Authentication middleware
 app.UseAuthorization();      //  Authorization middleware
