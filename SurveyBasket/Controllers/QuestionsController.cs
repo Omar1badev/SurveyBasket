@@ -25,9 +25,7 @@ public class QuestionsController(IQuestionService service) : ControllerBase
            return Ok(result.Value);
 
 
-        return result.Error.Equals(QuestionErrors.DaplicatedTitle) 
-                ? result.ToProblem(StatusCodes.Status409Conflict)
-                : result.ToProblem(StatusCodes.Status404NotFound);
+        return result.ToProblem();
     }
 
 
@@ -41,9 +39,7 @@ public class QuestionsController(IQuestionService service) : ControllerBase
         if (result.IsSuccess) 
         return Ok(result.Value);
 
-        return result.Error.Equals(QuestionErrors.DaplicatedTitle)
-                ? result.ToProblem(StatusCodes.Status409Conflict)
-                : result.ToProblem(StatusCodes.Status404NotFound);
+        return result.ToProblem();
     }
 
 
@@ -58,9 +54,7 @@ public class QuestionsController(IQuestionService service) : ControllerBase
             return Ok(result.Value);
 
 
-        return result.Error.Equals(QuestionErrors.DaplicatedTitle)
-                ? result.ToProblem(StatusCodes.Status409Conflict)
-                : result.ToProblem(StatusCodes.Status404NotFound);
+        return result.ToProblem();
     }
     
     [HttpPut("{Id}")]
@@ -73,8 +67,6 @@ public class QuestionsController(IQuestionService service) : ControllerBase
             return NoContent();
 
 
-        return result.Error.Equals(QuestionErrors.DaplicatedTitle)
-                ? result.ToProblem(StatusCodes.Status409Conflict)
-                : result.ToProblem(StatusCodes.Status404NotFound);
+        return result.ToProblem();
     }
 }

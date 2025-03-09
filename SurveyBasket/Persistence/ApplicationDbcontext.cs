@@ -9,6 +9,8 @@ public class ApplicationDbcontext(DbContextOptions<ApplicationDbcontext> options
     public required DbSet<Poll> Polls { get; set; }
     public required DbSet<Question> Questions { get; set; }
     public required DbSet<Answer> Answers{ get; set; }
+    public required DbSet<Vote> Votes { get; set; }
+    public required DbSet<VoteAnswer> VoteAnswers{ get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

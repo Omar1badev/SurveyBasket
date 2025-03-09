@@ -1,9 +1,4 @@
-﻿using Azure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using SurveyBasket.Abstraction;
-using SurveyBasket.Entites;
-
+﻿
 namespace SurveyBasket.Controllers;
 
 
@@ -21,19 +16,30 @@ public class PollsController(IPollsService service) : ControllerBase
         var response = await service.GetPollsAsync();
 
         return response.IsSuccess ? Ok(response.Value) :
-            response.ToProblem(StatusCodes.Status404NotFound);
-    } 
+            response.ToProblem();
+    }
 
 
 
-    
+    [HttpGet("current")]
+
+    public async Task<IActionResult> GetCurrent()
+    {
+        var response = await service.GetCurrentAsync();
+
+        return response.IsSuccess ? Ok(response.Value) :
+            response.ToProblem();
+    }
+
+
+
     [HttpGet("{Id}")]
     public async Task<IActionResult> Get(int Id)
     {
         var response = await service.GetPollByIdAsync(Id);
 
         return response.IsSuccess ? Ok(response.Value) :
-        response.ToProblem(StatusCodes.Status404NotFound);
+        response.ToProblem();
 
 
     }
@@ -48,7 +54,7 @@ public class PollsController(IPollsService service) : ControllerBase
 
         return response.IsSuccess ?
             Ok(response.Value) :
-            response.ToProblem(StatusCodes.Status404NotFound);
+            response.ToProblem();
         
     }
 
@@ -61,7 +67,7 @@ public class PollsController(IPollsService service) : ControllerBase
         var response =await service.UpdatePollAsync(Id, request);
 
         return response.IsSuccess ? Ok(response.Value) :
-            response.ToProblem(StatusCodes.Status404NotFound);
+            response.ToProblem();
     }
 
 
@@ -83,6 +89,6 @@ public class PollsController(IPollsService service) : ControllerBase
         var response = await service.ToggleStatus(Id);
         return response.IsSuccess ?
             Ok(response) :
-            response.ToProblem(StatusCodes.Status404NotFound);
+            response.ToProblem();
     }
 }

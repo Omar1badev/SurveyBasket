@@ -1,5 +1,6 @@
 ﻿using SurveyBasket.Abstraction;
 using SurveyBasket.Abstraction.Errors;
+using SurveyBasket.Contracts.Answers;
 using SurveyBasket.Contracts.Questions;
 
 namespace SurveyBasket.Services.Questions;
@@ -67,6 +68,33 @@ public class QuestionService(ApplicationDbcontext dbcontext) : IQuestionService
 
         return Result.Success(question);
 
+    }
+
+    public async Task<Result<IEnumerable<QuestionResponse>>> GetAvailableAsync(int PollId, string UserId)
+    {
+        var isExist = await dbcontext.Votes.AnyAsync(r => r.Id == PollId && r.UserId == UserId);
+
+        if (isExist)
+            return Result.Failure<IEnumerable<QuestionResponse>>(VotesErrors.DaplicatedVote);
+
+        var PollIsExist = await dbcontext.Polls.AnyAsync(x => x.Id == PollId&& x.IsPublished && x.StartsAt <= DateOnly.FromDateTime(DateTime.UtcNow) && x.EndsAt >= DateOnly.FromDateTime(DateTime.UtcNow));
+
+        if (!PollIsExist)
+            return Result.Failure<IEnumerable<QuestionResponse>>(PollsErrors.NotFound);
+
+        var questions = await dbcontext.Questions
+            .Where(x=>x.PollsId == PollId && x.IsActive)
+            .Include(i => i.Answers)
+            .Select(q => new QuestionResponse(
+            
+                 q.Id,
+                q.Content,
+                q.Answers.Where(c => c.IsActive).Select(r => new AnswerResponse(r.Id, r.Content)).ToList()
+            ))
+            .AsNoTracking()
+            .ToListAsync();
+
+        return Result.Success<IEnumerable<QuestionResponse>>(questions);
     }
 
     public async Task<Result> UpdateAsync(int PollId, int Id, QuestionRequest request)

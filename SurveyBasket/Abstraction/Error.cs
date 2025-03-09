@@ -1,6 +1,6 @@
 ﻿namespace SurveyBasket.Abstraction;
 
-public record Error(string Code , string Description)
+public record Error(string Code , string Description , int? StatuesCode )
 { 
-    public static Error non => new (string.Empty,string.Empty);
+    public static Error non => new (string.Empty,string.Empty,null);
 }

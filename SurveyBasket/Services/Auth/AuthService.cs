@@ -74,7 +74,7 @@ public class AuthService(UserManager<ApplicataionUser> manager,IJwtProvider jwtP
         var UserRefreshToken = user.RefreshTokens.SingleOrDefault(x => x.Token == RefreshToken && x.IsActive);
 
         if (UserRefreshToken is null)
-            return Result.Failure<AuthResponse>(UserErrors.RefreshTokenExpired);
+            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
 
         UserRefreshToken.RevokedOn = DateTime.UtcNow;
 
@@ -113,17 +113,17 @@ public class AuthService(UserManager<ApplicataionUser> manager,IJwtProvider jwtP
         var UserId = jwtProvider.ValidateToken(Token);
 
         if (UserId is null)
-            return Result.Failure(UserErrors.RefreshTokenInvalidated);
+            return Result.Failure(UserErrors.InvalidCredentials);
 
         var user = await manager.FindByIdAsync(UserId);
 
         if (user is null)
-            return Result.Failure(UserErrors.InvalidCredentials);
+            return Result.Failure(UserErrors.UserNotFound);
 
         var UserRefreshToken = user.RefreshTokens.SingleOrDefault(x => x.Token == RefreshToken && x.IsActive);
 
         if (UserRefreshToken is null)
-            return Result.Failure(UserErrors.RefreshTokenNotActive);
+            return Result.Failure(UserErrors.InvalidCredentials);
 
         UserRefreshToken.RevokedOn = DateTime.UtcNow;
 

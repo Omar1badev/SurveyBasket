@@ -2,6 +2,7 @@
 using Azure.Core;
 using SurveyBasket.Abstraction;
 using SurveyBasket.Abstraction.Errors;
+using System.Collections.Generic;
 
 namespace SurveyBasket.Services.Polls;
 
@@ -35,6 +36,17 @@ public class PollsService(ApplicationDbcontext dbcontext) : IPollsService
         return Result.Success();
     }
 
+    public async Task<Result<IEnumerable<PollResponse>>> GetCurrentAsync()
+    {
+        var response = await dbcontext.Polls
+            .AsNoTracking()
+            .Where(x => x.IsPublished && x.StartsAt <= DateOnly.FromDateTime(DateTime.UtcNow) && x.EndsAt >= DateOnly.FromDateTime(DateTime.UtcNow))
+            .ProjectToType<PollResponse>()
+            .ToListAsync();
+
+        return Result.Success<IEnumerable<PollResponse>>(response);
+    }
+
     public async Task<Result<PollResponse>> GetPollByIdAsync(int pollId)
     {
         var poll = await dbcontext.Polls.FindAsync(pollId);
@@ -49,11 +61,10 @@ public class PollsService(ApplicationDbcontext dbcontext) : IPollsService
     public async Task<Result<IEnumerable<PollResponse>>> GetPollsAsync()
 
     {
-        var polls = await dbcontext.Polls.AsNoTracking().ToListAsync();
+        var response = await dbcontext.Polls.AsNoTracking().ProjectToType<PollResponse>().ToListAsync();
 
-        var response = polls.Adapt<IEnumerable<PollResponse>>();
 
-        return Result.Success(response);
+        return Result.Success<IEnumerable<PollResponse>>(response);
     }
 
     public async Task<Result> ToggleStatus(int Id)

@@ -16,7 +16,7 @@ public class AuthController(IAuthService service) : ControllerBase
 
         return response.IsSuccess ?
             Ok(response.Value) : 
-            response.ToProblem(StatusCodes.Status404NotFound);
+            response.ToProblem();
     }
 
 
@@ -28,7 +28,7 @@ public class AuthController(IAuthService service) : ControllerBase
 
         return response.IsSuccess ?
             Ok(response.Value) :
-            response.ToProblem(StatusCodes.Status404NotFound);
+            response.ToProblem();
     }
     
 
@@ -40,6 +40,6 @@ public class AuthController(IAuthService service) : ControllerBase
 
         return response.IsSuccess ?
             Ok() :
-            response.ToProblem(StatusCodes.Status404NotFound);
+            response.ToProblem();
     }
 }
