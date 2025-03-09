@@ -7,11 +7,22 @@ public class ApplicationDbcontext(DbContextOptions<ApplicationDbcontext> options
     private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
 
     public required DbSet<Poll> Polls { get; set; }
+    public required DbSet<Question> Questions { get; set; }
+    public required DbSet<Answer> Answers{ get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        base.OnModelCreating(modelBuilder);
+
+        var cascadeFKs = modelBuilder.Model.GetEntityTypes()
+            .SelectMany(t => t.GetForeignKeys())
+            .Where(fk => !fk.IsOwnership && fk.DeleteBehavior == DeleteBehavior.Cascade);
+
+        foreach (var fk in cascadeFKs)
+            fk.DeleteBehavior = DeleteBehavior.Restrict;
+        
+
+            base.OnModelCreating(modelBuilder);
 
     }
 

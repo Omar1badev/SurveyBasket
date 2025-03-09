@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SurveyBasket.Abstraction.Errors;
+using SurveyBasket.Services.Questions;
 using System.Text;
 
 namespace SurveyBasket;
@@ -19,6 +20,7 @@ public static class DependencyInjection
         Services.AddEndpointsApiExplorer();
 
         Services.AddScoped<IPollsService, PollsService>();
+        Services.AddScoped<IQuestionService, QuestionService>();
         Services.AddScoped<IAuthService,AuthService>();
         Services.AddScoped<IJwtProvider, JwtProvider>();
 

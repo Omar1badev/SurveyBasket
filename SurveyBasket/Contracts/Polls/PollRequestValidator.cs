@@ -1,10 +1,10 @@
 ﻿
 namespace SurveyBasket.Contracts.Polls;
 
-public class AuthRequestValidator : AbstractValidator<PollRequest>
+public class PollRequestValidator : AbstractValidator<PollRequest>
 {
 
-    public AuthRequestValidator()
+    public PollRequestValidator()
     {
         RuleFor(x => x.Title)
             .NotEmpty()
