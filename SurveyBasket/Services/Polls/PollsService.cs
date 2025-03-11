@@ -1,9 +1,4 @@
 ﻿
-using Azure.Core;
-using SurveyBasket.Abstraction;
-using SurveyBasket.Abstraction.Errors;
-using System.Collections.Generic;
-
 namespace SurveyBasket.Services.Polls;
 
 public class PollsService(ApplicationDbcontext dbcontext) : IPollsService

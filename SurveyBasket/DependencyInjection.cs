@@ -1,4 +1,6 @@
 ﻿
+using SurveyBasket.Services.AddResults;
+
 namespace SurveyBasket;
 
 public static class DependencyInjection
@@ -12,6 +14,7 @@ public static class DependencyInjection
         Services.AddEndpointsApiExplorer();
 
         Services.AddScoped<IPollsService, PollsService>();
+        Services.AddScoped<IResultService, ResultService>();
         Services.AddScoped<IVotesService, VotesService>();
         Services.AddScoped<IQuestionService, QuestionService>();
         Services.AddScoped<IAuthService,AuthService>();
