@@ -16,10 +16,10 @@ public static class DependencyInjection
         Services.AddEndpointsApiExplorer();
         Services.AddHttpContextAccessor();
         Services.AddScoped<IPollsService, PollsService>();
-        Services.AddScoped<IEmailSender, EmailService>();
         Services.AddScoped<IResultService, ResultService>();
         Services.AddScoped<IVotesService, VotesService>();
         Services.AddScoped<IQuestionService, QuestionService>();
+        Services.AddScoped<IEmailSender, EmailService>();
         Services.AddScoped<IAuthService,AuthService>();
         Services.AddScoped<IJwtProvider, JwtProvider>();
 
