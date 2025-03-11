@@ -1,5 +1,7 @@
 ﻿
+using Microsoft.AspNetCore.Identity.UI.Services;
 using SurveyBasket.Services.AddResults;
+using SurveyBasket.Settings;
 
 namespace SurveyBasket;
 
@@ -12,8 +14,9 @@ public static class DependencyInjection
         Services.AddControllers();
 
         Services.AddEndpointsApiExplorer();
-
+        Services.AddHttpContextAccessor();
         Services.AddScoped<IPollsService, PollsService>();
+        Services.AddScoped<IEmailSender, EmailService>();
         Services.AddScoped<IResultService, ResultService>();
         Services.AddScoped<IVotesService, VotesService>();
         Services.AddScoped<IQuestionService, QuestionService>();
@@ -22,6 +25,8 @@ public static class DependencyInjection
 
         Services.AddExceptionHandler<GlobalExceptionHandler>();
         Services.AddProblemDetails();
+
+        
 
         Services.AddAuth(configuration)
                 .AddMappester()
@@ -76,6 +81,8 @@ public static class DependencyInjection
             .AddDefaultTokenProviders();
 
         Services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+
+        Services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
 
         var Jwtsetting = configuration.GetSection("Jwt").Get<JwtOptions>();
 

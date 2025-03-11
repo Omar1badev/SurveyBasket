@@ -1,21 +1,27 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using SurveyBasket.Abstraction;
 using SurveyBasket.Abstraction.Errors;
+using SurveyBasket.Helpers;
 using System.Security.Cryptography;
 
 namespace SurveyBasket.Services.Auth;
 
 public class AuthService(UserManager<ApplicataionUser> manager,
     SignInManager<ApplicataionUser> signInManager
-    ,IJwtProvider jwtProvider,
-    ILogger<AuthService> logger) : IAuthService
+    , IJwtProvider jwtProvider,
+    ILogger<AuthService> logger,
+    IEmailSender emailSender,
+    IHttpContextAccessor httpContextAccessor) : IAuthService
 {
     private readonly UserManager<ApplicataionUser> manager = manager;
     private readonly SignInManager<ApplicataionUser> signInManager = signInManager;
     private readonly IJwtProvider jwtProvider = jwtProvider;
     private readonly ILogger<AuthService> logger = logger;
+    private readonly IEmailSender emailSender = emailSender;
+    private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
     private readonly int RefreshTokenExpiryDays = 60;
 
     public async Task<Result<AuthResponse>> SingInAsync(AuthRequest request)
@@ -34,7 +40,8 @@ public class AuthService(UserManager<ApplicataionUser> manager,
         //using signin manager
         var result = await signInManager.PasswordSignInAsync(user, request.Password, false, false);
 
-        if (result.Succeeded) {
+        if (result.Succeeded)
+        {
             var (Token, ExpiresIn) = jwtProvider.GenerateToken(user);
 
             var RefreshToken = GenerateRefreshToken();
@@ -65,7 +72,7 @@ public class AuthService(UserManager<ApplicataionUser> manager,
             return Result.Success(response);
         }
 
-     return Result.Failure<AuthResponse>(result.IsNotAllowed ? UserErrors.EmailNotConfirmed : UserErrors.InvalidCredentials);
+        return Result.Failure<AuthResponse>(result.IsNotAllowed ? UserErrors.EmailNotConfirmed : UserErrors.InvalidCredentials);
 
     }
 
@@ -83,9 +90,9 @@ public class AuthService(UserManager<ApplicataionUser> manager,
 
         var user = await manager.FindByIdAsync(UserId);
 
-        if (user is null) 
+        if (user is null)
             return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
-        
+
         var UserRefreshToken = user.RefreshTokens.SingleOrDefault(x => x.Token == RefreshToken && x.IsActive);
 
         if (UserRefreshToken is null)
@@ -148,12 +155,12 @@ public class AuthService(UserManager<ApplicataionUser> manager,
 
     public async Task<Result> RegisterAsync(RegisterRequest request)
     {
-        var emailisex = await manager.Users.AnyAsync(i=>i.Email == request.Email);
+        var emailisex = await manager.Users.AnyAsync(i => i.Email == request.Email);
 
-        if(emailisex)
+        if (emailisex)
             return Result.Failure(UserErrors.EmailAlreadyExist);
 
-        var user =request.Adapt<ApplicataionUser>();
+        var user = request.Adapt<ApplicataionUser>();
 
         var result = await manager.CreateAsync(user, request.Password);
 
@@ -163,8 +170,9 @@ public class AuthService(UserManager<ApplicataionUser> manager,
 
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-            logger.LogInformation("Configration code : {code}",code);
+            logger.LogInformation("Configration code : {code}", code);
 
+            await sendemail(user, code);
 
 
             return Result.Success();
@@ -177,11 +185,11 @@ public class AuthService(UserManager<ApplicataionUser> manager,
     public async Task<Result> ConfirmEmailAsync(ConfigrationEmailRequest request)
     {
 
-        if(await manager.FindByIdAsync(request.UserId) is not { } user)
+        if (await manager.FindByIdAsync(request.UserId) is not { } user)
             return Result.Failure(UserErrors.UserNotFound);
 
 
-        if(user.EmailConfirmed)
+        if (user.EmailConfirmed)
             return Result.Failure(UserErrors.DuplicatedConfermation);
 
         var code = request.Code;
@@ -194,9 +202,9 @@ public class AuthService(UserManager<ApplicataionUser> manager,
 
             return Result.Failure(UserErrors.InvalidCredentials);
         }
-        
 
-        var result = await manager.ConfirmEmailAsync(user,code);
+
+        var result = await manager.ConfirmEmailAsync(user, code);
 
         if (result.Succeeded)
         {
@@ -225,7 +233,20 @@ public class AuthService(UserManager<ApplicataionUser> manager,
 
         //send email
 
+        await sendemail(user, code);
 
         return Result.Success();
+    }
+
+    private async Task sendemail(ApplicataionUser user, string code)
+    {
+        var origin = httpContextAccessor.HttpContext?.Request.Headers.Origin;
+
+        var emailbody = EmailBodyBuilder.GenerateEmailBody("EmailConfirmation",
+            new Dictionary<string, string> {
+                    { "{{name}}", user.FirstName } ,
+                    { "{{action_url}}", $"{origin}/auth/emailconfigration?userid={user.Id}&code={code}" }
+            });
+        await emailSender.SendEmailAsync(user.Email!, "Survay basket : Email configration", emailbody);
     }
 }
