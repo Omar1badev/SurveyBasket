@@ -209,7 +209,7 @@ public class AuthService(UserManager<ApplicataionUser> manager,
 
     public async Task<Result> ResendEmailAsync(ResendEmailRequest request)
     {
-        if (await manager.FindByIdAsync(request.Email) is not { } user)
+        if (await manager.FindByEmailAsync(request.Email) is not { } user)
             return Result.Success();
 
 

@@ -9,7 +9,6 @@ namespace SurveyBasket.Controllers;
 public class AuthController(IAuthService service) : ControllerBase
 {
     [HttpPost("login")]
-
     public async Task<IActionResult> login([FromBody] AuthRequest request)
     {
         var response = await service.SingInAsync(request);
@@ -20,7 +19,6 @@ public class AuthController(IAuthService service) : ControllerBase
     }
 
     [HttpPost("register")]
-
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var response = await service.RegisterAsync(request);
@@ -31,10 +29,20 @@ public class AuthController(IAuthService service) : ControllerBase
     }
     
     [HttpPost("confirm-email")]
-
     public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfigrationEmailRequest request)
     {
         var response = await service.ConfirmEmailAsync(request);
+
+        return response.IsSuccess ?
+            Ok() :
+            response.ToProblem();
+    }
+
+
+    [HttpPost("resend-configration-email")]
+    public async Task<IActionResult> ResendConfirmEmailAsync([FromBody] ResendEmailRequest request)
+    {
+        var response = await service.ResendEmailAsync(request);
 
         return response.IsSuccess ?
             Ok() :
