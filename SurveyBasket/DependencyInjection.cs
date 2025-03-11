@@ -33,7 +33,6 @@ public static class DependencyInjection
 
         return Services;
     } 
-
     public static IServiceCollection AddSwagger(this IServiceCollection Services)
     {
         Services.AddSwaggerGen(c =>
@@ -42,8 +41,6 @@ public static class DependencyInjection
         });
         return Services;
     }
-
-
     public static IServiceCollection AddFluentValidation(this IServiceCollection Services)
     {
         Services
@@ -52,8 +49,6 @@ public static class DependencyInjection
 
         return Services;
     }
-
-
     public static IServiceCollection AddMappester(this IServiceCollection Services)
     {
         var mappingConfig = TypeAdapterConfig.GlobalSettings;
@@ -63,7 +58,6 @@ public static class DependencyInjection
 
         return Services;
     }
-    
     public static IServiceCollection AddDatabase(this IServiceCollection Services, IConfiguration c)
     {
         var ConnectionString = c.GetConnectionString("DefaultConnection") ??
@@ -74,7 +68,6 @@ public static class DependencyInjection
 
         return Services;
     }
-
     public static IServiceCollection AddAuth(this IServiceCollection Services, IConfiguration configuration)
     {
 
@@ -105,6 +98,18 @@ public static class DependencyInjection
 
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Jwtsetting?.Key!))
             };
+        });
+        Services.Configure<IdentityOptions>(options =>
+        {
+            // Default Lockout settings.
+            //options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            //options.Lockout.MaxFailedAccessAttempts = 5;
+            //options.Lockout.AllowedForNewUsers = true;
+            options.Password.RequiredLength = 8;
+            // options.SignIn.RequireConfirmedEmail = true;
+            options.User.RequireUniqueEmail = true;
+
+
         });
 
         return Services;
