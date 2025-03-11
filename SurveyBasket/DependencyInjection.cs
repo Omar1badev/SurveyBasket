@@ -72,7 +72,8 @@ public static class DependencyInjection
     {
 
         Services.AddIdentity<ApplicataionUser, IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbcontext>();
+            .AddEntityFrameworkStores<ApplicationDbcontext>()
+            .AddDefaultTokenProviders();
 
         Services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
 
@@ -106,7 +107,7 @@ public static class DependencyInjection
             //options.Lockout.MaxFailedAccessAttempts = 5;
             //options.Lockout.AllowedForNewUsers = true;
             options.Password.RequiredLength = 8;
-            // options.SignIn.RequireConfirmedEmail = true;
+            options.SignIn.RequireConfirmedEmail = true;
             options.User.RequireUniqueEmail = true;
 
 

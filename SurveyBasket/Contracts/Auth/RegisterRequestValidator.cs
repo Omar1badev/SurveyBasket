@@ -15,16 +15,18 @@ public class RegisterRequestValidator :  AbstractValidator<RegisterRequest>
         RuleFor(x => x.Password)
             .NotEmpty()
             .WithMessage("Password is required")
-            .Length(8, 50);
+            .Matches(RegexPatterns.Password)
+            .WithMessage("Password should be 8 digits and should contains Lowercase,Uppercase,Number and Special character ");
 
         RuleFor(x => x.FirstName)
             .NotEmpty()
-            .Matches(RegexPatterns.Password)
-            .WithMessage("Password should be 8 digits and should contains Lowercase,Uppercase,Number and Special character ");
-            
+            .WithMessage("LastName is required")
+            .Length(3, 100);
+
+
         RuleFor(x => x.LastName)
             .NotEmpty()
             .WithMessage("LastName is required")
-            .Length(3, 100); ;
+            .Length(3, 100); 
     } }
 

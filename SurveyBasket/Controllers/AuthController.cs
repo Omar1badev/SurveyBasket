@@ -10,12 +10,23 @@ public class AuthController(IAuthService service) : ControllerBase
 {
     [HttpPost("login")]
 
-    public async Task<IActionResult> Register([FromBody] AuthRequest request)
+    public async Task<IActionResult> login([FromBody] AuthRequest request)
     {
         var response = await service.SingInAsync(request);
 
         return response.IsSuccess ?
             Ok(response.Value) : 
+            response.ToProblem();
+    }
+
+    [HttpPost("register")]
+
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    {
+        var response = await service.RegisterAsync(request);
+
+        return response.IsSuccess ?
+            Ok() :
             response.ToProblem();
     }
 
