@@ -1,8 +1,13 @@
 ﻿
+using Hangfire;
+using SurveyBasket.Services.Notification;
+
 namespace SurveyBasket.Services.Polls;
 
-public class PollsService(ApplicationDbcontext dbcontext) : IPollsService
+public class PollsService(ApplicationDbcontext dbcontext ,INotificationService notification) : IPollsService
 {
+    private readonly INotificationService notification = notification;
+
     public async Task<Result<PollResponse>> CreatePollAsync(PollRequest Request)
     {
         var isexist = dbcontext.Polls.Any(x => x.Title == Request.Title);
@@ -71,6 +76,9 @@ public class PollsService(ApplicationDbcontext dbcontext) : IPollsService
         poll.IsPublished = !poll.IsPublished;
         dbcontext.Polls.Update(poll);
         dbcontext.SaveChanges();
+
+        if(poll.IsPublished&&poll.StartsAt == DateOnly.FromDateTime(DateTime.UtcNow))
+                BackgroundJob.Enqueue(() => notification.SendNewPollNotification(poll.Id));
 
         return Result.Success();
 

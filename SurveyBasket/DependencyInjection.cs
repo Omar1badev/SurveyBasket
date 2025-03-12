@@ -1,6 +1,9 @@
 ﻿
+using Hangfire;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Configuration;
 using SurveyBasket.Services.AddResults;
+using SurveyBasket.Services.Notification;
 using SurveyBasket.Settings;
 
 namespace SurveyBasket;
@@ -16,6 +19,7 @@ public static class DependencyInjection
         Services.AddEndpointsApiExplorer();
         Services.AddHttpContextAccessor();
         Services.AddScoped<IPollsService, PollsService>();
+        Services.AddScoped<INotificationService, NotificationService>();
         Services.AddScoped<IResultService, ResultService>();
         Services.AddScoped<IVotesService, VotesService>();
         Services.AddScoped<IQuestionService, QuestionService>();
@@ -33,6 +37,8 @@ public static class DependencyInjection
                 .AddFluentValidation()
                 .AddSwagger()
                 .AddDatabase(configuration)
+                .AddCORS()
+                .AddHangfire(configuration)
                 ;
 
 
@@ -136,10 +142,21 @@ public static class DependencyInjection
         });
         return Services;
     }
+    public static IServiceCollection AddHangfire(this IServiceCollection Services,IConfiguration configuration)
+    {
+        Services.AddHangfire(config => config
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection")));
 
-
-        
+        // Add the processing server as IHostedService
+        Services.AddHangfireServer();
+        return Services;
     }
+
+
+}
 
 
 

@@ -1,4 +1,5 @@
 ﻿
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
@@ -174,7 +175,6 @@ public class AuthService(UserManager<ApplicataionUser> manager,
 
             await sendemail(user, code);
 
-
             return Result.Success();
         }
         var errors = result.Errors.First();
@@ -230,9 +230,7 @@ public class AuthService(UserManager<ApplicataionUser> manager,
 
         logger.LogInformation("Configration code : {code}", code);
 
-
         //send email
-
         await sendemail(user, code);
 
         return Result.Success();
@@ -247,6 +245,8 @@ public class AuthService(UserManager<ApplicataionUser> manager,
                     { "{{name}}", user.FirstName } ,
                     { "{{action_url}}", $"{origin}/auth/emailconfigration?userid={user.Id}&code={code}" }
             });
-        await emailSender.SendEmailAsync(user.Email!, "Survay basket : Email configration", emailbody);
+
+        BackgroundJob.Enqueue(()=> emailSender.SendEmailAsync(user.Email!, "Survay basket : Email configration", emailbody));
+        await Task.CompletedTask;
     }
 }
