@@ -4,7 +4,10 @@ using SurveyBasket.Services.Notification;
 
 namespace SurveyBasket.Services.Polls;
 
-public class PollsService(ApplicationDbcontext dbcontext ,INotificationService notification) : IPollsService
+public class PollsService(
+    ApplicationDbcontext dbcontext ,
+    INotificationService notification
+    ) : IPollsService
 {
     private readonly INotificationService notification = notification;
 

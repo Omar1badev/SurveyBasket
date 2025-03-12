@@ -19,8 +19,7 @@ builder.Host.UseSerilog((context, configration) =>
     configration
     .ReadFrom.Configuration(context.Configuration)
     //.WriteTo.Console()
-
-);
+    );
 
 var app = builder.Build();
 
@@ -34,6 +33,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseHangfireDashboard("/jobs", new DashboardOptions
 {
     Authorization = [
@@ -41,19 +41,22 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
         {
             User = app.Configuration.GetValue<string>("HangfireSettings:Username"),
             Pass = app.Configuration.GetValue<string>("HangfireSettings:Password")
-            
-        }
-
-        ],
+                   }],
     DashboardTitle = "Survey Basket Jobs",
 });
 
-var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
-using var scope = app.Services.CreateScope();
-var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+var scopeFactory = app.Services
+    .GetRequiredService<IServiceScopeFactory>();
+
+using var scope = app.Services
+    .CreateScope();
+
+var notificationService = scope.ServiceProvider
+    .GetRequiredService<INotificationService>();
 
 
-RecurringJob.AddOrUpdate("SendNewPollNotification", ()=> notificationService.SendNewPollNotification(null) , Cron.Daily);
+RecurringJob
+    .AddOrUpdate("SendNewPollNotification", ()=> notificationService.SendNewPollNotification(null) , Cron.Daily);
 
 
 

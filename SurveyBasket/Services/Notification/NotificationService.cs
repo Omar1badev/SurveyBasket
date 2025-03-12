@@ -9,7 +9,8 @@ public class NotificationService(
     ApplicationDbcontext dbcontext ,
     UserManager<ApplicataionUser> manager,
     IHttpContextAccessor httpContextAccessor ,
-    IEmailSender emailSender ) : INotificationService
+    IEmailSender emailSender 
+    ) : INotificationService
 {
     private readonly ApplicationDbcontext dbcontext = dbcontext;
     private readonly UserManager<ApplicataionUser> manager = manager;
