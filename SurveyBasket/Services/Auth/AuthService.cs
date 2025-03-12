@@ -10,12 +10,14 @@ using System.Security.Cryptography;
 
 namespace SurveyBasket.Services.Auth;
 
-public class AuthService(UserManager<ApplicataionUser> manager,
+public class AuthService(
+    UserManager<ApplicataionUser> manager,
     SignInManager<ApplicataionUser> signInManager
     , IJwtProvider jwtProvider,
     ILogger<AuthService> logger,
     IEmailSender emailSender,
-    IHttpContextAccessor httpContextAccessor) : IAuthService
+    IHttpContextAccessor httpContextAccessor
+    ) : IAuthService
 {
     private readonly UserManager<ApplicataionUser> manager = manager;
     private readonly SignInManager<ApplicataionUser> signInManager = signInManager;
@@ -244,6 +246,7 @@ public class AuthService(UserManager<ApplicataionUser> manager,
             new Dictionary<string, string> {
                     { "{{name}}", user.FirstName } ,
                     { "{{action_url}}", $"{origin}/auth/emailconfigration?userid={user.Id}&code={code}" }
+
             });
 
         BackgroundJob.Enqueue(()=> emailSender.SendEmailAsync(user.Email!, "Survay basket : Email configration", emailbody));

@@ -5,10 +5,11 @@ using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace SurveyBasket.Services.Notification;
 
-public class NotificationService(ApplicationDbcontext dbcontext ,
+public class NotificationService(
+    ApplicationDbcontext dbcontext ,
     UserManager<ApplicataionUser> manager,
     IHttpContextAccessor httpContextAccessor ,
-    IEmailSender emailSender) : INotificationService
+    IEmailSender emailSender ) : INotificationService
 {
     private readonly ApplicationDbcontext dbcontext = dbcontext;
     private readonly UserManager<ApplicataionUser> manager = manager;
@@ -31,7 +32,6 @@ public class NotificationService(ApplicationDbcontext dbcontext ,
                 .AsNoTracking()
                 .ToListAsync();
         }
-
         //todo : send notification for members only
 
         var users = await manager.Users.ToListAsync();
@@ -50,10 +50,8 @@ public class NotificationService(ApplicationDbcontext dbcontext ,
                     {"{{endDate}}", poll.EndsAt.ToString()},
                     {"{{url}}", $"{origin}/polls/start/{poll.Id}"}
                 };
-
-                var body = EmailBodyBuilder.GenerateEmailBody("PollNotification",placeholder);
-
-                await emailSender.SendEmailAsync(user.Email!, $"Survay Basket : New Poll {poll.Title}", body);
+               var body = EmailBodyBuilder.GenerateEmailBody("PollNotification",placeholder);
+               await emailSender.SendEmailAsync(user.Email!, $"Survay Basket : New Poll {poll.Title}", body);
             }
         }
     }
