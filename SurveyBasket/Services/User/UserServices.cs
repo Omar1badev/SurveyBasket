@@ -6,6 +6,20 @@ public class UserServices(UserManager<ApplicataionUser> manager) : IUserService
 {
     private readonly UserManager<ApplicataionUser> manager = manager;
 
+    public async Task<Result> ChangePassword(string id, ChangePasswordRequest request)
+    {
+        var user = await manager.FindByIdAsync(id);
+
+        var result = await manager.ChangePasswordAsync(user!, request.CurrentPassword,request.NewPassord);
+
+        if (result.Succeeded)
+            return Result.Success();
+
+        var error = result.Errors.First();
+
+        return Result.Failure(new Error(error.Code , error.Description , StatusCodes.Status400BadRequest));
+    }
+
     public async Task<Result<UserProfileResponse>> GetUserProfile(string id)
     {
         var user = await manager.Users
