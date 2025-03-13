@@ -16,4 +16,15 @@ public class UserServices(UserManager<ApplicataionUser> manager) : IUserService
 
         return Result.Success(user);
     }
+
+    public async Task<Result> UpdateUserProfile(string id, UpdateUserProfileRequest request)
+    {
+        var user = await manager.FindByIdAsync(id);
+
+        user = request.Adapt(user);
+
+        await manager.UpdateAsync(user!);
+
+        return Result.Success();
+    }
 }
