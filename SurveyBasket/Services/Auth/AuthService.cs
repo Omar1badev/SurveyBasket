@@ -274,6 +274,9 @@ public class AuthService(
         if(await manager.FindByEmailAsync(request.Email) is not { } user)
             return Result.Success();
 
+        if(!user.EmailConfirmed)
+            return Result.Failure(UserErrors.EmailNotConfirmed);
+
         var code = await manager.GeneratePasswordResetTokenAsync(user);
 
         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
