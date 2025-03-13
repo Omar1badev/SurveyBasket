@@ -13,4 +13,5 @@ public interface IAuthService
     Task<Result> RevokeRefreshTokenAsync(string Token,string RefreshToken);
 
     Task<Result> ForgetPassordAsync(ForgetPasswordRequest request);
+    Task<Result> ResetPasswordAsync(ResetPasswordRequest request);
 }

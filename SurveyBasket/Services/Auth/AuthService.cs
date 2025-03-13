@@ -286,4 +286,34 @@ public class AuthService(
         return Result.Success();
 
     }
+
+    public async Task<Result> ResetPasswordAsync(ResetPasswordRequest request)
+    {
+        var user = await manager.FindByEmailAsync(request.Email);
+
+        if(user == null || !user.EmailConfirmed) 
+            return Result.Failure(UserErrors.InvalidCredentials);
+
+        IdentityResult identityResult;
+
+        try
+        {
+            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Code));
+
+            identityResult = await manager.ResetPasswordAsync(user,code , request.Password);
+
+        }
+        catch (FormatException)
+        {
+
+            identityResult = IdentityResult.Failed(manager.ErrorDescriber.InvalidToken());
+        }
+
+        if(identityResult.Succeeded)
+            return Result.Success();
+
+        var error = identityResult.Errors.First();
+
+        return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status401Unauthorized));
+    }
 }

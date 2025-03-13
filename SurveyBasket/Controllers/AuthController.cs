@@ -72,4 +72,14 @@ public class AuthController(IAuthService service) : ControllerBase
             Ok() :
             response.ToProblem();
     }
+    
+    [HttpPost("forget-password")]
+    public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordRequest request)
+    {
+        var response = await service.ForgetPassordAsync(request);
+
+        return response.IsSuccess ?
+                Ok() :
+                response.ToProblem();
+    }
 }
