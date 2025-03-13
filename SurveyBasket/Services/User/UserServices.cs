@@ -8,8 +8,12 @@ public class UserServices(UserManager<ApplicataionUser> manager) : IUserService
 
     public async Task<Result<UserProfileResponse>> GetUserProfile(string id)
     {
-        var user = await manager.FindByIdAsync(id);
+        var user = await manager.Users
+            .Where(i=>i.Id == id)
+            .ProjectToType<UserProfileResponse>()
+            .SingleAsync();
+            ;
 
-        return Result.Success(user.Adapt<UserProfileResponse>());
+        return Result.Success(user);
     }
 }
