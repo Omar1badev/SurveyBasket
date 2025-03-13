@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Configuration;
 using SurveyBasket.Services.AddResults;
 using SurveyBasket.Services.Notification;
+using SurveyBasket.Services.User;
 using SurveyBasket.Settings;
 
 namespace SurveyBasket;
 
 public static class DependencyInjection
 {
+
 
     public static IServiceCollection AddDependencies(this IServiceCollection Services , IConfiguration configuration)
     {
@@ -19,6 +21,7 @@ public static class DependencyInjection
         Services.AddEndpointsApiExplorer();
         Services.AddHttpContextAccessor();
         Services.AddScoped<IPollsService, PollsService>();
+        Services.AddScoped<IUserService, UserServices>();
         Services.AddScoped<INotificationService, NotificationService>();
         Services.AddScoped<IResultService, ResultService>();
         Services.AddScoped<IVotesService, VotesService>();
