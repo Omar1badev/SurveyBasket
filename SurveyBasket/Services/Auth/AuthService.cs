@@ -7,6 +7,7 @@ using SurveyBasket.Abstraction;
 using SurveyBasket.Abstraction.Errors;
 using SurveyBasket.Helpers;
 using System.Security.Cryptography;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace SurveyBasket.Services.Auth;
 
@@ -251,5 +252,38 @@ public class AuthService(
 
         BackgroundJob.Enqueue(()=> emailSender.SendEmailAsync(user.Email!, "Survay basket : Email configration", emailbody));
         await Task.CompletedTask;
+    }
+
+    private async Task sendchangepasswordemail(ApplicataionUser user, string code)
+    {
+        var origin = httpContextAccessor.HttpContext?.Request.Headers.Origin;
+
+        var emailbody = EmailBodyBuilder.GenerateEmailBody("ForgetPassword",
+            new Dictionary<string, string> {
+                    { "{{name}}", user.FirstName } ,
+                    { "{{action_url}}", $"{origin}/auth/forgetpassword?email={user.Email}&code={code}" }
+
+            });
+
+        BackgroundJob.Enqueue(()=> emailSender.SendEmailAsync(user.Email!, "Survay basket : change password", emailbody));
+        await Task.CompletedTask;
+    }
+
+    public async Task<Result> ForgetPassordAsync(ForgetPasswordRequest request)
+    {
+        if(await manager.FindByEmailAsync(request.Email) is not { } user)
+            return Result.Success();
+
+        var code = await manager.GeneratePasswordResetTokenAsync(user);
+
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+        logger.LogInformation("Reset code : {code}", code);
+
+        //send email
+        await sendchangepasswordemail(user, code);
+
+        return Result.Success();
+
     }
 }

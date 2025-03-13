@@ -11,4 +11,6 @@ public interface IAuthService
     Task<Result> ResendEmailAsync(ResendEmailRequest request);
     Task<Result<AuthResponse>> GetRefreshTokenAsync(string Token,string RefreshToken);
     Task<Result> RevokeRefreshTokenAsync(string Token,string RefreshToken);
+
+    Task<Result> ForgetPassordAsync(ForgetPasswordRequest request);
 }
