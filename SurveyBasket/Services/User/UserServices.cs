@@ -33,11 +33,16 @@ public class UserServices(UserManager<ApplicataionUser> manager) : IUserService
 
     public async Task<Result> UpdateUserProfile(string id, UpdateUserProfileRequest request)
     {
-        var user = await manager.FindByIdAsync(id);
+        //var user = await manager.FindByIdAsync(id);
 
-        user = request.Adapt(user);
+        //user = request.Adapt(user);
 
-        await manager.UpdateAsync(user!);
+        //await manager.UpdateAsync(user!);
+        await manager.Users
+            .Where(i => i.Id == id)
+            .ExecuteUpdateAsync(set =>
+            set.SetProperty(x => x.FirstName, request.FirstName)
+               .SetProperty(x => x.LastName, request.LastName));
 
         return Result.Success();
     }
