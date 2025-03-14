@@ -1,5 +1,7 @@
 ﻿
 
+using SurveyBasket.Abstraction.Consts;
+
 namespace SurveyBasket.Services.Auth;
 
 public class AuthService(
@@ -202,6 +204,9 @@ public class AuthService(
 
         if (result.Succeeded)
         {
+
+            await manager.AddToRoleAsync(user, DefaultRoles.Member);
+
             return Result.Success();
         }
         var errors = result.Errors.First();
