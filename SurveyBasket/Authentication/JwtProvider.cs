@@ -1,5 +1,7 @@
 ﻿
 
+using System.Text.Json;
+
 namespace SurveyBasket.Authentication;
 
 public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
@@ -13,7 +15,9 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
             new (JwtRegisteredClaimNames.Email, user.Email!),
             new (JwtRegisteredClaimNames.GivenName, user.FirstName),
             new (JwtRegisteredClaimNames.FamilyName, user.LastName),
-            new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new (nameof(Roles),JsonSerializer.Serialize(Roles),JsonClaimValueTypes.JsonArray),
+            new (nameof(Permission),JsonSerializer.Serialize(Permission),JsonClaimValueTypes.JsonArray)
             ];
 
         var SymmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Key));
