@@ -2,7 +2,7 @@
 
 namespace SurveyBasket.Persistence;
 
-public class ApplicationDbcontext(DbContextOptions<ApplicationDbcontext> options , IHttpContextAccessor httpContextAccessor) : IdentityDbContext<ApplicataionUser>(options)
+public class ApplicationDbcontext(DbContextOptions<ApplicationDbcontext> options , IHttpContextAccessor httpContextAccessor) : IdentityDbContext<ApplicataionUser, ApplicationRole , string>(options)
 {
     private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
 

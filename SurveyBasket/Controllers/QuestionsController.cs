@@ -8,6 +8,7 @@ using SurveyBasket.Services.Questions;
 namespace SurveyBasket.Controllers;
 [Route("polls/{PollId}/[controller]")]
 [ApiController]
+[Authorize]
 public class QuestionsController(IQuestionService service) : ControllerBase
 {
     private readonly IQuestionService service = service;

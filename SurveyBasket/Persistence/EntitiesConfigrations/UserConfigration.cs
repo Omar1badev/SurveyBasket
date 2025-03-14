@@ -1,4 +1,6 @@
 ﻿
+using SurveyBasket.Abstraction.Consts;
+
 namespace SurveyBasket.Persistence.EntitiesConfigrations;
 
 public class UserConfigration :IEntityTypeConfiguration<ApplicataionUser>
@@ -19,6 +21,21 @@ public class UserConfigration :IEntityTypeConfiguration<ApplicataionUser>
         builder.Property(p => p.LastName)
             .IsRequired()
             .HasMaxLength(100);
+
+        builder.HasData(new ApplicataionUser
+        {
+            Id = DefaultUsers.AdminId,
+            UserName = DefaultUsers.AdminEmail,
+            NormalizedUserName = DefaultUsers.AdminEmail.ToUpper(),
+            Email = DefaultUsers.AdminEmail,
+            NormalizedEmail = DefaultUsers.AdminEmail.ToUpper(),
+            EmailConfirmed = true,
+            PasswordHash = new PasswordHasher<ApplicataionUser>().HashPassword(null, "Admin@123"),
+            SecurityStamp = DefaultUsers.AdminSecurityStamp,
+            ConcurrencyStamp = DefaultUsers.AdminConcurrencyStamp,
+            FirstName = "Survay Basket",
+            LastName = "Admin"
+        });
         
     }
 }

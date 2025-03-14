@@ -28,9 +28,13 @@ global using SurveyBasket.Abstraction;
 global using SurveyBasket.Abstraction.Errors;
 global using SurveyBasket.Extensions;
 global using SurveyBasket.Services.Questions;
-
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using SurveyBasket.Services.Votes;
+global using Hangfire;
+global using Microsoft.AspNetCore.Identity.UI.Services;
+global using Microsoft.AspNetCore.WebUtilities;
+global using SurveyBasket.Helpers;
+global using System.Security.Cryptography;
 
 
 

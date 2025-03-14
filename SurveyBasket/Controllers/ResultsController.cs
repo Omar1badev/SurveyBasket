@@ -5,6 +5,7 @@ using SurveyBasket.Services.AddResults;
 namespace SurveyBasket.Controllers;
 [Route("polls/{PollId}/[controller]")]
 [ApiController]
+[Authorize]
 public class ResultsController(IResultService service) : ControllerBase
 {
     private readonly IResultService service = service;

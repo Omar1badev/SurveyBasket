@@ -4,7 +4,7 @@ namespace SurveyBasket.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-//[Authorize]
+[Authorize]
 public class PollsController(IPollsService service) : ControllerBase
 {
     private readonly IPollsService service = service;
