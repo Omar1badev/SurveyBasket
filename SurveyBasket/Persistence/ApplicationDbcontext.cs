@@ -1,5 +1,7 @@
 ﻿
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
 namespace SurveyBasket.Persistence;
 
 public class ApplicationDbcontext(DbContextOptions<ApplicationDbcontext> options , IHttpContextAccessor httpContextAccessor) : IdentityDbContext<ApplicataionUser, ApplicationRole , string>(options)
@@ -26,6 +28,11 @@ public class ApplicationDbcontext(DbContextOptions<ApplicationDbcontext> options
 
             base.OnModelCreating(modelBuilder);
 
+    }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.ConfigureWarnings(warnings =>
+            warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
