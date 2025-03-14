@@ -6,7 +6,7 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 {
     private readonly JwtOptions options = options.Value;
 
-    public (string Token, int Expiry) GenerateToken(ApplicataionUser user)
+    public (string Token, int Expiry) GenerateToken(ApplicataionUser user , IEnumerable<string> Roles , IEnumerable<string> Permission )
     {
         Claim[] claims = [
             new (JwtRegisteredClaimNames.Sub, user.Id),

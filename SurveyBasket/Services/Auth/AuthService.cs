@@ -10,8 +10,8 @@ public class AuthService(
     , IJwtProvider jwtProvider,
     ILogger<AuthService> logger,
     IEmailSender emailSender,
-    IHttpContextAccessor httpContextAccessor
-    ) : IAuthService
+    IHttpContextAccessor httpContextAccessor,
+    ApplicationDbcontext dbcontext) : IAuthService
 {
     private readonly UserManager<ApplicataionUser> manager = manager;
     private readonly SignInManager<ApplicataionUser> signInManager = signInManager;
@@ -19,6 +19,7 @@ public class AuthService(
     private readonly ILogger<AuthService> logger = logger;
     private readonly IEmailSender emailSender = emailSender;
     private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
+    private readonly ApplicationDbcontext dbcontext = dbcontext;
     private readonly int RefreshTokenExpiryDays = 60;
 
     public async Task<Result<AuthResponse>> SingInAsync(AuthRequest request)
@@ -39,6 +40,8 @@ public class AuthService(
 
         if (result.Succeeded)
         {
+            var userRoles = await manager.GetRolesAsync(user);
+
             var (Token, ExpiresIn) = jwtProvider.GenerateToken(user);
 
             var RefreshToken = GenerateRefreshToken();
