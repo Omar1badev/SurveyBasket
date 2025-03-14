@@ -30,7 +30,7 @@ public class UserConfigration :IEntityTypeConfiguration<ApplicataionUser>
             Email = DefaultUsers.AdminEmail,
             NormalizedEmail = DefaultUsers.AdminEmail.ToUpper(),
             EmailConfirmed = true,
-            PasswordHash = new PasswordHasher<ApplicataionUser>().HashPassword(null, "Admin@123"),
+            PasswordHash = new PasswordHasher<ApplicataionUser>().HashPassword(null!, "P@ssword1234"),
             SecurityStamp = DefaultUsers.AdminSecurityStamp,
             ConcurrencyStamp = DefaultUsers.AdminConcurrencyStamp,
             FirstName = "Survay Basket",
